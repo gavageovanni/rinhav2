@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
+	"os"
 )
 
 var (
@@ -26,8 +27,7 @@ func GetDB() *pgxpool.Pool {
 }
 
 var (
-	//host = "localhost"
-	host  = "db"
+	host  = os.Getenv("POSTGRES_HOST")
 	port  = 5432
 	user  = "rinhav2"
 	pass  = "rinhav2"

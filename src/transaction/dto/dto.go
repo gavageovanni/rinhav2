@@ -5,7 +5,7 @@ import "time"
 type TransactionRequestDto struct {
 	Value       int    `json:"valor" validate:"required"`
 	Type        string `json:"tipo" validate:"required"`
-	Description string `json:"descricao" validate:"required"`
+	Description string `json:"descricao" validate:"required,max=10"`
 }
 
 type TransactionResponseDto struct {
