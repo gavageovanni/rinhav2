@@ -17,7 +17,7 @@ select -1 into ret;
 RETURN ret;
 END IF;
 
-    --raise notice'service by user %.', idUser;
+    --raise notice'transaction by user %.', idUser;
 INSERT INTO models (value, description, created_at, user_id)
 VALUES (value, description, now() at time zone 'utc', idUser);
 UPDATE user_models
