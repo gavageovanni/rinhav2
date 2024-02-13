@@ -36,7 +36,7 @@ userfound users%rowtype;
     ret RECORD;
 BEGIN
 SELECT * FROM users
-    INTO userfound
+INTO userfound
 WHERE id = idUser;
 
 IF not found THEN

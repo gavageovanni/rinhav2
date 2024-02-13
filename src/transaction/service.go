@@ -112,7 +112,7 @@ func (t serviceImpl) Statement(ctx context.Context, userId int) (dto.StatementRe
 	for _, res := range resultList {
 		if res.Value != nil {
 			response.LastTransactions = append(response.LastTransactions, dto.LastTransactions{
-				Value:       *res.Value * -1,
+				Value:       makePositive(res.Value),
 				Type:        determineType(res.Value),
 				Description: *res.Description,
 				CreatedAt:   *res.CreatedAt,
@@ -122,6 +122,17 @@ func (t serviceImpl) Statement(ctx context.Context, userId int) (dto.StatementRe
 
 	fmt.Printf("%+v\n", resultList)
 	return response, nil
+}
+
+func makePositive(numberPtr *int) int {
+	if numberPtr != nil {
+		num := *numberPtr
+		if num < 0 {
+			return -num
+		}
+		return num
+	}
+	return 0
 }
 
 func validateType(num int, t string) int {

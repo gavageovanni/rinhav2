@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   api01: &api
-    image: geovannigava/rinhav2:v10
+    image: geovannigava/rinhav2:v13
     hostname: api01
     restart: always
     ports:
