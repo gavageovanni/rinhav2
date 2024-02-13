@@ -1,22 +1,21 @@
 package main
 
 import (
-	"baitadores-rinhav2/config"
 	"baitadores-rinhav2/routes"
 	"github.com/labstack/echo/v4/middleware"
 	"log"
 )
 
 func main() {
-	config.DatabaseInit()
-	gorm := config.DB()
+	//config.DatabaseInit()
+	//gorm := config.DB()
 
-	dbGorm, err := gorm.DB()
-	if err != nil {
-		panic(err)
-	}
-
-	dbGorm.Ping()
+	//dbGorm, err := gorm.DB()
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//dbGorm.Ping()
 
 	echo := routes.Routing.GetRoutes(routes.Routing{})
 
@@ -27,7 +26,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	err = echo.Start(":8080")
+	err := echo.Start(":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
