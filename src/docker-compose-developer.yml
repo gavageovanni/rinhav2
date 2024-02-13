@@ -8,7 +8,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=rinhav2
       - POSTGRES_USER=rinhav2
-      - POSTGRES_DB=rinhav2
+      - POSTGRES_DB=rinhav2////
     ports:
       - "5432:5432"
     volumes:

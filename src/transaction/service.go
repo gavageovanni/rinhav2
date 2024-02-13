@@ -10,7 +10,7 @@ import (
 )
 
 type Service interface {
-	Execute(ctx context.Context, transactionDto dto.TransactionRequestDto, userId int) (dto.TransactionResponseDto, error, int)
+	Execute(ctx context.Context, transactionDto dto.TransactionRequestDto, userId int) (dto.TransactionResponseDto, *int)
 	Statement(ctx context.Context, userId int) (dto.StatementResponseDto, error)
 }
 
@@ -24,46 +24,46 @@ func NewTransaction(db *pgxpool.Pool) Service {
 	}
 }
 
-func (t serviceImpl) Execute(ctx context.Context, transactionDto dto.TransactionRequestDto, userId int) (dto.TransactionResponseDto, error, int) {
+type ExecuteResult struct {
+	Balance string `json:"balance"`
+	Limit   string `json:"limit"`
+}
 
-	var result struct {
-		Balance string `json:"balance"`
-		Limit   string `json:"limit"`
-	}
-
+func (t serviceImpl) Execute(ctx context.Context, transactionDto dto.TransactionRequestDto, userId int) (dto.TransactionResponseDto, *int) {
+	var result ExecuteResult
 	row := t.db.QueryRow(ctx,
 		"SELECT createtransaction($1, $2, $3)",
 		userId, validateType(transactionDto.Value, transactionDto.Type), transactionDto.Description,
 	)
-
 	if err := row.Scan(&result); err != nil {
-		fmt.Println("Erro: resultado não é do tipo esperado")
+		fmt.Println("deserialize sql result error")
 	}
-	var resultado dto.TransactionResponseDto
+	return buildExecuteResponse(result)
+}
+
+func buildExecuteResponse(result ExecuteResult) (dto.TransactionResponseDto, *int) {
+	var transactionResponse dto.TransactionResponseDto
+	var errorCode *int
+	balance, err := strconv.Atoi(result.Balance)
+	if err != nil {
+		return transactionResponse, nil
+	}
+
 	if result.Limit == "" {
-		errorCode, _ := strconv.Atoi(result.Balance)
-		if errorCode == -2 {
-			return resultado, fmt.Errorf("saldo insuficiente"), 2
-		}
-		if errorCode == -1 {
-			return resultado, fmt.Errorf("usuario nao encontrado"), 1
-		}
-		return resultado, fmt.Errorf("Formato de valores inválido"), 0
+		errorCode = &balance
+		return transactionResponse, errorCode
 	}
 
-	saldo, err := strconv.Atoi(result.Balance)
+	limit, err := strconv.Atoi(result.Limit)
 	if err != nil {
-		return resultado, fmt.Errorf("Erro ao converter saldo para inteiro"), 0
+		unknownErrorCode := -3
+		errorCode = &unknownErrorCode
+		return transactionResponse, errorCode
 	}
+	transactionResponse.Balance = balance
+	transactionResponse.Limit = limit * -1
 
-	limite, err := strconv.Atoi(result.Limit)
-	if err != nil {
-		return resultado, fmt.Errorf("Erro ao converter limite para inteiro"), 0
-	}
-	resultado.Balance = saldo
-	resultado.Limit = limite * -1
-
-	return resultado, nil, 0
+	return transactionResponse, nil
 }
 
 func (t serviceImpl) Statement(ctx context.Context, userId int) (dto.StatementResponseDto, error) {
@@ -119,8 +119,6 @@ func (t serviceImpl) Statement(ctx context.Context, userId int) (dto.StatementRe
 			})
 		}
 	}
-
-	fmt.Printf("%+v\n", resultList)
 	return response, nil
 }
 
