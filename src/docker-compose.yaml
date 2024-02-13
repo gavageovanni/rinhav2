@@ -15,7 +15,7 @@ services:
       resources:
         limits:
           cpus: "0.2"
-          memory: "150MB"
+          memory: "130MB"
 
   api02:
     <<: *api
@@ -61,7 +61,7 @@ services:
       resources:
         limits:
           cpus: "0.95"
-          memory: "230MB"
+          memory: "270MB"
 
 networks:
   default:
